@@ -2,11 +2,12 @@
 A more efficient multimodal large language model series.
 
 > **AuroraCap** &emsp; A Detailed Captioning Baseline and Benchmark for Video  
-> [![](https://img.shields.io/badge/docs-922133)](docs/auroracap/README.md)
-> [![](https://img.shields.io/badge/web-922133)](https://rese1f.github.io/aurora-web/)
-> [![](http://img.shields.io/badge/arXiv-922133)](https://arxiv.org/abs/2409.)
-> [![](https://img.shields.io/badge/%F0%9F%A4%97%20_model-ffc107?color=ffc107&logoColor=white)]()
-> [![](https://img.shields.io/badge/%F0%9F%A4%97%20_VDC_benchmark-ffc107?color=ffc107&logoColor=white)]()
+
+[![](https://img.shields.io/badge/docs-922133)](docs/auroracap/README.md)
+[![](https://img.shields.io/badge/web-922133)](https://rese1f.github.io/aurora-web/)
+[![](http://img.shields.io/badge/arXiv-922133)](https://arxiv.org/abs/2409.)
+[![](https://img.shields.io/badge/%F0%9F%A4%97%20_model-ffc107?color=ffc107&logoColor=white)]()
+[![](https://img.shields.io/badge/%F0%9F%A4%97%20_VDC_benchmark-ffc107?color=ffc107&logoColor=white)]()
 
 ## News
 
