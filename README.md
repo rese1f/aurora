@@ -15,6 +15,54 @@ A more efficient multimodal large language model series.
 
 ## Quick Start  
 
+### Installation
+
+We recommend installing aurora in a virtual environment from Conda (Python>=3.10).
+```
+conda create -n aurora python=3.10
+conda activate aurora
+```
+
+Install PyTorch following [instruction](https://pytorch.org/get-started/locally/).
+```
+pip install torch torchvision
+```
+
+For quick usage only for deploy, install aurora via pip.
+```
+pip install aurora
+```
+
+For further development, clone this repository and install from source.
+```
+git clone https://github.com/rese1f/aurora.git && cd aurora
+pip install -r requirements.txt
+```
+
+For training, install additional dependencies.
+```
+cd src/xtuner && pip install -e '.[all]'
+```
+
+For evaluation, install additional dependencies.
+```
+cd src/lmms-eval && pip install -e .
+```
+
+Since transformers version confilct, we recommand using seperated virtual environment for deploy, install addttional dependencies.
+```
+cd src/sglang && pip install -e "python[all]"
+pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4/
+```
+
+### Play with AuroraCap
+
+#### with huggingface transformers
+
+#### with SGLang
+
+#### with Gradio GUI
+
 ## Citation
 
 ```bibtex
