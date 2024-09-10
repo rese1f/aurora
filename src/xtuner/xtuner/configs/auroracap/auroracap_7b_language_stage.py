@@ -42,7 +42,7 @@ weight_decay = 0
 max_norm = 1  # grad clip
 warmup_ratio = 0.03
 visual_token_merge_ratio = 0.1
-sf = False
+slowfast = False
 
 # Save
 save_steps = 100

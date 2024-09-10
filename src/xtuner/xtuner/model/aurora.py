@@ -34,7 +34,7 @@ from xtuner.model.utils import (
     guess_load_checkpoint,
     make_inputs_require_grad,
     prepare_inputs_labels_for_multimodal,
-    prepare_inputs_labels_for_multimodal_sf,
+    prepare_inputs_labels_for_multimodal_slowfast,
     traverse_dict,
     # create_reference_model,
 )
@@ -56,7 +56,7 @@ class AuroraModel(BaseModel):
         use_activation_checkpointing=True,
         beta=0.1,
         label_smoothing=0.0,
-        sf=False,
+        slowfast=False,
     ):
         super().__init__()
         self.freeze_llm = freeze_llm
@@ -130,7 +130,7 @@ class AuroraModel(BaseModel):
 
         self._is_init = True
         
-        self.sf = sf
+        self.slowfast = slowfast
 
     def _parse_lora_config(self, lora_config):
         if isinstance(lora_config, dict) or isinstance(lora_config, Config) or isinstance(lora_config, ConfigDict):
@@ -206,7 +206,7 @@ class AuroraModel(BaseModel):
             data["pixel_values"] = rearrange(data["pixel_values"], "b f c h w -> (b f) c h w")
             
 
-            if self.sf and f != 1: # b = 1
+            if self.slowfast and f != 1: # b = 1
                 low_res_frame = data["pixel_values"][1:].to(self.visual_encoder.dtype)
                 low_visual_outputs = self.visual_encoder(low_res_frame, output_hidden_states=True)
                 low_visual_outputs = low_visual_outputs.hidden_states[self.visual_select_layer][:, 1:]
@@ -229,7 +229,7 @@ class AuroraModel(BaseModel):
                     visual_outputs.append(low_visual_outputs[i])
 
                 data["pixel_values"] = visual_outputs
-                data = prepare_inputs_labels_for_multimodal_sf(llm=self.llm, **data)
+                data = prepare_inputs_labels_for_multimodal_slowfast(llm=self.llm, **data)
             else:
                 try:
                     visual_outputs = self.visual_encoder(data["pixel_values"], output_hidden_states=True)

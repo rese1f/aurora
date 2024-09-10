@@ -297,7 +297,7 @@ def prepare_inputs_labels_for_multimodal(
 
 
 # Modified from https://github.com/haotian-liu/LLaVA/blob/82fc5e0e5f4393a4c26851fa32c69ab37ea3b146/llava/model/llava_arch.py#L99  # noqa: E501
-def prepare_inputs_labels_for_multimodal_sf(
+def prepare_inputs_labels_for_multimodal_slowfast(
         llm: PreTrainedModel,
         input_ids: torch.LongTensor = None,
         position_ids: Optional[torch.LongTensor] = None,
