@@ -44,6 +44,7 @@ from vllm.model_executor.model_loader import get_model
 from vllm.model_executor.models import ModelRegistry
 
 from sglang.global_config import global_config
+from sglang.srt.configs.model_config import AttentionArch, ModelConfig
 from sglang.srt.layers.logits_processor import LogitsProcessorOutput
 from sglang.srt.layers.sampler import SampleOutput
 from sglang.srt.managers.schedule_batch import ScheduleBatch, global_server_args_dict
@@ -52,8 +53,7 @@ from sglang.srt.mem_cache.memory_pool import (
     MLATokenToKVPool,
     ReqToTokenPool,
 )
-from sglang.srt.model_config import AttentionArch, ModelConfig
-from sglang.srt.model_executor.forward_batch_info import ForwardMode, InputMetadata
+from sglang.srt.model_executor.forward_batch_info import InputMetadata
 from sglang.srt.server_args import ServerArgs
 from sglang.srt.utils import (
     get_available_gpu_memory,
@@ -92,10 +92,11 @@ class ModelRunner:
         )
         global_server_args_dict.update(
             {
-                "disable_flashinfer": server_args.disable_flashinfer,
-                "disable_flashinfer_sampling": server_args.disable_flashinfer_sampling,
+                "attention_backend": server_args.attention_backend,
+                "sampling_backend": server_args.sampling_backend,
                 "triton_attention_reduce_in_fp32": server_args.triton_attention_reduce_in_fp32,
                 "enable_mla": server_args.enable_mla,
+                "torchao_config": server_args.torchao_config,
             }
         )
 
@@ -110,7 +111,7 @@ class ModelRunner:
         self.load_model()
         self.init_memory_pool(
             min_per_gpu_memory,
-            server_args.max_num_reqs,
+            server_args.max_running_requests,
             server_args.max_total_tokens,
         )
         self.init_cublas()
@@ -343,8 +344,8 @@ class ModelRunner:
     def init_memory_pool(
         self,
         total_gpu_memory: int,
-        max_num_reqs: int = None,
-        max_total_tokens: int = None,
+        max_num_reqs: Optional[int] = None,
+        max_total_tokens: Optional[int] = None,
     ):
         if self.server_args.kv_cache_dtype == "auto":
             self.kv_cache_dtype = self.dtype
@@ -378,7 +379,7 @@ class ModelRunner:
                     ),
                     2048,
                 ),
-                5120,
+                4096,
             )
 
         self.req_to_token_pool = ReqToTokenPool(
@@ -398,7 +399,7 @@ class ModelRunner:
             )
             logger.info("using MLA Triton implementaion, flashinfer is disabled")
             # FIXME: temporarily only Triton MLA is supported
-            self.server_args.disable_flashinfer = True
+            self.server_args.attention_backend = "triton"
         else:
             self.token_to_kv_pool = MHATokenToKVPool(
                 self.max_total_num_tokens,
@@ -423,7 +424,7 @@ class ModelRunner:
 
     def init_flashinfer(self):
         """Init flashinfer attention kernel wrappers."""
-        if self.server_args.disable_flashinfer:
+        if self.server_args.attention_backend != "flashinfer":
             assert (
                 self.sliding_window_size is None
             ), "turn on flashinfer to support window attention"
@@ -490,7 +491,10 @@ class ModelRunner:
 
         from sglang.srt.model_executor.cuda_graph_runner import CudaGraphRunner
 
-        if self.server_args.disable_cuda_graph or self.server_args.disable_flashinfer:
+        if (
+            self.server_args.disable_cuda_graph
+            or self.server_args.attention_backend != "flashinfer"
+        ):
             self.cuda_graph_runner = None
             return
 
@@ -528,11 +532,7 @@ class ModelRunner:
         ):
             return self.cuda_graph_runner.replay(batch)
 
-        input_metadata = InputMetadata.from_schedule_batch(
-            self,
-            batch,
-            ForwardMode.DECODE,
-        )
+        input_metadata = InputMetadata.from_schedule_batch(self, batch)
 
         return self.model.forward(
             batch.input_ids, input_metadata.positions, input_metadata
@@ -540,11 +540,7 @@ class ModelRunner:
 
     @torch.inference_mode()
     def forward_extend(self, batch: ScheduleBatch):
-        input_metadata = InputMetadata.from_schedule_batch(
-            self,
-            batch,
-            forward_mode=ForwardMode.EXTEND,
-        )
+        input_metadata = InputMetadata.from_schedule_batch(self, batch)
         if self.is_generation:
             return self.model.forward(
                 batch.input_ids, input_metadata.positions, input_metadata
@@ -560,11 +556,7 @@ class ModelRunner:
 
     @torch.inference_mode()
     def forward_extend_multi_modal(self, batch: ScheduleBatch):
-        input_metadata = InputMetadata.from_schedule_batch(
-            self,
-            batch,
-            forward_mode=ForwardMode.EXTEND,
-        )
+        input_metadata = InputMetadata.from_schedule_batch(self, batch)
         return self.model.forward(
             batch.input_ids,
             input_metadata.positions,
@@ -575,16 +567,18 @@ class ModelRunner:
         )
 
     def forward(
-        self, batch: ScheduleBatch, forward_mode: ForwardMode
+        self, batch: ScheduleBatch
     ) -> Tuple[SampleOutput, LogitsProcessorOutput]:
-        if self.is_multimodal_model and forward_mode == ForwardMode.EXTEND:
+        assert batch.forward_mode is not None
+
+        if self.is_multimodal_model and batch.forward_mode.is_extend():
             return self.forward_extend_multi_modal(batch)
-        elif forward_mode == ForwardMode.DECODE:
+        elif batch.forward_mode.is_decode():
             return self.forward_decode(batch)
-        elif forward_mode == ForwardMode.EXTEND:
+        elif batch.forward_mode.is_extend():
             return self.forward_extend(batch)
         else:
-            raise ValueError(f"Invaid forward mode: {forward_mode}")
+            raise ValueError(f"Invaid forward mode: {batch.forward_mode}")
 
 
 @lru_cache()

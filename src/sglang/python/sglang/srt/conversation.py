@@ -13,7 +13,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-"""Conversation templates."""
+"""Conversation chat templates."""
 
 # Adapted from
 # https://github.com/lm-sys/FastChat/blob/main/fastchat/conversation.py
@@ -71,6 +71,7 @@ class Conversation:
     # Stop criteria (the default one is EOS token)
     stop_str: Union[str, List[str]] = None
     image_data: Optional[List[str]] = None
+    modalities: Optional[List[str]] = None
 
     def get_prompt(self) -> str:
         """Get the prompt for generation."""
@@ -379,6 +380,7 @@ def generate_chat_conv(
         sep2=conv.sep2,
         stop_str=conv.stop_str,
         image_data=[],
+        modalities=[],
     )
 
     if isinstance(request.messages, str):
@@ -408,6 +410,7 @@ def generate_chat_conv(
                 for content in message.content:
                     if content.type == "image_url":
                         num_image_url += 1
+                        conv.modalities.append(content.modalities)
                 if num_image_url > 1:
                     image_token = "<image>"
                 else:

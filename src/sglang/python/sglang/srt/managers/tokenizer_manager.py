@@ -18,6 +18,7 @@ limitations under the License.
 import asyncio
 import concurrent.futures
 import dataclasses
+import json
 import logging
 import multiprocessing as mp
 import os
@@ -77,7 +78,6 @@ class TokenizerManager:
         self,
         server_args: ServerArgs,
         port_args: PortArgs,
-        model_override_args: dict = None,
     ):
         self.server_args = server_args
 
@@ -95,7 +95,7 @@ class TokenizerManager:
         self.hf_config = get_config(
             self.model_path,
             trust_remote_code=server_args.trust_remote_code,
-            model_override_args=model_override_args,
+            model_override_args=json.loads(server_args.json_model_override_args),
         )
         self.is_generation = is_generation_model(
             self.hf_config.architectures, self.server_args.is_embedding
@@ -114,17 +114,7 @@ class TokenizerManager:
                     tokenizer_mode=server_args.tokenizer_mode,
                     trust_remote_code=server_args.trust_remote_code,
                 )
-                if 'AuroraCapForCausalLM' in self.hf_config.architectures:
-                    self.tokenizer = self.processor
-                    self.processor.tokenizer = self.tokenizer
-                    self.processor.image_processor = CLIPImageProcessor.from_pretrained(
-                        pretrained_model_name_or_path="laion/CLIP-ViT-bigG-14-laion2B-39B-b160k",  # use standard CLIP processor
-                        trust_remote_code=True,
-                        size=resolution,
-                        crop_size=resolution,
-                    )
-                else:
-                    self.tokenizer = self.processor.tokenizer
+                self.tokenizer = self.processor.tokenizer
                 os.environ["TOKENIZERS_PARALLELISM"] = "false"
 
                 # We want to parallelize the image pre-processing so we
@@ -198,6 +188,7 @@ class TokenizerManager:
                 pixel_values, image_hashes, image_sizes = await self._get_pixel_values(
                     obj.image_data if not_use_index else obj.image_data[index]
                 )
+                modalities = obj.modalities
                 return_logprob = (
                     obj.return_logprob if not_use_index else obj.return_logprob[index]
                 )
@@ -253,6 +244,7 @@ class TokenizerManager:
             pixel_values, image_hashes, image_sizes = await self._get_pixel_values(
                 obj.image_data[0]
             )
+            modalities = obj.modalities
             return_logprob = obj.return_logprob[0]
             logprob_start_len = obj.logprob_start_len[0]
             top_logprobs_num = obj.top_logprobs_num[0]
@@ -273,6 +265,7 @@ class TokenizerManager:
                 logprob_start_len,
                 top_logprobs_num,
                 obj.stream,
+                modalities,
             )
         else:  # is embedding
             tokenized_obj = TokenizedEmbeddingReqInput(
@@ -356,6 +349,7 @@ class TokenizerManager:
                     pixel_values, image_hashes, image_sizes = (
                         await self._get_pixel_values(obj.image_data[index])
                     )
+                    modalities = obj.modalities
 
                     tokenized_obj = TokenizedGenerateReqInput(
                         rid,
@@ -369,6 +363,7 @@ class TokenizerManager:
                         obj.logprob_start_len[index],
                         obj.top_logprobs_num[index],
                         obj.stream,
+                        modalities,
                     )
                 else:
                     tokenized_obj = TokenizedEmbeddingReqInput(
@@ -779,8 +774,6 @@ def _process_single_image_task(
                     image, processor.image_processor, image_grid_pinpoints
                 )
             else:
-                print(processor)
-                import pdb;pdb.set_trace()
                 pixel_values = processor.image_processor(image)["pixel_values"][0]
 
             if isinstance(pixel_values, np.ndarray):

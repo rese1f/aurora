@@ -29,7 +29,9 @@ from sglang.srt.constrained.jump_forward import JumpForwardMap
 from sglang.srt.mem_cache.base_prefix_cache import BasePrefixCache
 from sglang.srt.mem_cache.chunk_cache import ChunkCache
 from sglang.srt.mem_cache.memory_pool import BaseTokenToKVPool, ReqToTokenPool
+from sglang.srt.model_executor.forward_batch_info import ForwardMode
 from sglang.srt.sampling.sampling_batch_info import SamplingBatchInfo
+from sglang.srt.server_args import ServerArgs
 
 if TYPE_CHECKING:
     from sglang.srt.layers.sampler import SampleOutput
@@ -39,10 +41,11 @@ INIT_INCREMENTAL_DETOKENIZATION_OFFSET = 5
 
 # Put some global args for easy access
 global_server_args_dict = {
-    "disable_flashinfer": False,
-    "disable_flashinfer_sampling": False,
-    "triton_attention_reduce_in_fp32": False,
-    "enable_mla": False,
+    "attention_backend": ServerArgs.attention_backend,
+    "sampling_backend": ServerArgs.sampling_backend,
+    "triton_attention_reduce_in_fp32": ServerArgs.triton_attention_reduce_in_fp32,
+    "enable_mla": ServerArgs.enable_mla,
+    "torchao_config": ServerArgs.torchao_config,
 }
 
 
@@ -130,6 +133,7 @@ class Req:
         self.image_sizes = None
         self.image_offsets = None
         self.pad_value = None
+        self.modalities = None
 
         # Prefix info
         self.extend_input_len = 0
@@ -333,6 +337,8 @@ class ScheduleBatch:
     token_to_kv_pool: BaseTokenToKVPool
     tree_cache: BasePrefixCache
 
+    forward_mode: ForwardMode = None
+
     # Batched arguments to model runner
     input_ids: torch.Tensor = None
     req_pool_indices: torch.Tensor = None
@@ -343,6 +349,7 @@ class ScheduleBatch:
 
     # For mixed chunekd prefill
     prefix_lens_cpu: List[int] = None
+    running_bs: int = None
 
     # For processing logprobs
     return_logprob: bool = False
@@ -396,6 +403,8 @@ class ScheduleBatch:
         return out_cache_loc
 
     def prepare_for_extend(self, vocab_size: int):
+        self.forward_mode = ForwardMode.EXTEND
+
         bs = self.batch_size()
         reqs = self.reqs
         input_ids = [r.fill_ids[len(r.prefix_indices) :] for r in reqs]
@@ -438,6 +447,9 @@ class ScheduleBatch:
         self.sampling_info = SamplingBatchInfo.from_schedule_batch(self, vocab_size)
 
     def mix_with_running(self, running_batch: "ScheduleBatch"):
+        self.forward_mode = ForwardMode.MIXED
+        self.running_bs = running_batch.batch_size()
+
         # NOTE: prefix_indices is what has been cached, but we don't cache each decode step
         prefix_lens_cpu = [len(r.prefix_indices) for r in self.reqs]
         prefix_lens_cpu.extend(
@@ -625,6 +637,8 @@ class ScheduleBatch:
         return jump_forward_reqs
 
     def prepare_for_decode(self, input_ids=None):
+        self.forward_mode = ForwardMode.DECODE
+
         if input_ids is None:
             input_ids = [
                 r.output_ids[-1] if r.output_ids else r.origin_input_ids[-1]
@@ -643,8 +657,6 @@ class ScheduleBatch:
         self.req_to_token_pool.req_to_token[
             self.req_pool_indices, self.seq_lens - 1
         ] = self.out_cache_loc
-
-        self.sampling_info.update_regex_vocab_mask(self)
 
     def filter_batch(self, unfinished_indices: List[int]):
         if unfinished_indices is None or len(unfinished_indices) == 0:

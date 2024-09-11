@@ -20,6 +20,7 @@ import math
 import os.path as osp
 import numpy as np
 import torch
+import torch.nn.functional as F
 from torch import nn
 from transformers.modeling_outputs import BaseModelOutput, BaseModelOutputWithPooling
 from transformers.models.clip.configuration_clip import CLIPConfig, CLIPVisionConfig
@@ -49,9 +50,10 @@ class AuroraCapForCausalLM(nn.Module):
         super().__init__()
         self.config = config
         self.vision_tower = None
+        self.config.image_token_index=29958
         self.hidden_size = config.hidden_size
-        projector_path = osp.join(config._name_or_path, "projector")
-        self.multi_modal_projector = AutoModel.from_pretrained(projector_path, torch_dtype=torch.float16, trust_remote_code=True)
+        self.config.vision_config.hidden_size = config.mm_hidden_size
+        self.multi_modal_projector = LlavaMultiModalProjector(config)
         self.mm_spatial_pool_stride = getattr(self.config, "mm_spatial_pool_stride", 2)
         self.resampler = nn.AvgPool2d(
             kernel_size=self.mm_spatial_pool_stride, stride=self.mm_spatial_pool_stride
@@ -155,7 +157,6 @@ class AuroraCapForCausalLM(nn.Module):
 
                     image_features = self.encode_images(
                         concat_images,
-                        self.tome_ratio
                     )  # , prompts)#, image_counts, long_video=long_video)
                     split_sizes = [image.shape[0] for image in pixel_values]
                     image_features = torch.split(image_features, split_sizes, dim=0)
@@ -166,7 +167,7 @@ class AuroraCapForCausalLM(nn.Module):
                     pixel_values = torch.tensor(
                         np.array(pixel_values), device=self.vision_tower.device
                     )
-                    image_features = self.encode_images(pixel_values, self.tome_ratio)
+                    image_features = self.encode_images(pixel_values)
                     # image_features: BS, 576, 4096
 
                 new_image_features = []
@@ -215,7 +216,7 @@ class AuroraCapForCausalLM(nn.Module):
         # Load clip vision model by cfg['mm_vision_tower']:
         # huggingface_name or path_of_clip_relative_to_llava_model_dir
         # We put the initialization here instead of __init__ to allow it being reused by other subclasses.
-        vision_path = osp.join(self.config._name_or_path, "visual_encoder")
+        vision_path = self.config.mm_vision_tower
         self.vision_tower = AuroraEncoder.from_pretrained(
             vision_path, torch_dtype=torch.float16
         ).cuda()
@@ -263,9 +264,19 @@ class AuroraCapForCausalLM(nn.Module):
                     print(f"Warning: {name} not found in the model")
                     continue
                 weight_loader = getattr(param, "weight_loader", default_weight_loader)
-                weight_loader(param, loaded_weight)
+            
+                try:
+                    weight_loader(param, loaded_weight)
+                except:
+                    print(self.config)
+                    print(self.multi_modal_projector)
+                    print(loaded_weight.shape)
+                    print(name)
+                    import pdb;pdb.set_trace()
             else:
                 self.language_model.load_weights([(name, loaded_weight)])
+
+        
 
     @property
     def num_patches_per_side(self):
