@@ -42,5 +42,14 @@ python xtuner/tools/train.py \
     --work-dir ${LOG_PATH} \
     --deepspeed deepspeed_zero2
 ```
+- `--deepspeed` means using DeepSpeed to optimize the training. XTuner comes with several integrated strategies including ZeRO-1, ZeRO-2, and ZeRO-3. If you wish to disable this feature, simply remove this argument.
 
-## Model format convert
+## Weight convert
+After training, convert the saved `.pth` model (if using DeepSpeed, it will be a directory) to Hugging Face model, by 
+```
+python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
+    ${CONFIG_PATH}  \
+    ${PTH_PATH} \
+    ${SAVE_PATH} \
+```
+If the saved PTH model need to be the llava format, add `--save-format official`

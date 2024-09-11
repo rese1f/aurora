@@ -1,6 +1,8 @@
 from collections import OrderedDict
 from typing import Any, Optional, Tuple, Union
+import warnings
 
+import json
 import os.path as osp
 import math
 import torch
@@ -23,6 +25,8 @@ from transformers import (AutoModel, AutoModelForCausalLM, AutoTokenizer,
                           CLIPVisionModel, GenerationConfig,
                           SiglipVisionModel)
 
+from accelerate import init_empty_weights
+
 from xtuner.registry import BUILDER
 from xtuner.utils import IGNORE_INDEX, IMAGE_TOKEN_INDEX
 from xtuner.model.modules import ProjectorConfig, ProjectorModel, dispatch_modules
@@ -36,9 +40,18 @@ from xtuner.model.utils import (
     prepare_inputs_labels_for_multimodal,
     prepare_inputs_labels_for_multimodal_slowfast,
     traverse_dict,
-    # create_reference_model,
 )
 
+def convert_state_dict_to_hf(state_dict, mapping):
+    new_state_dict = {}
+    for key, value in state_dict.items():
+        if key.endswith('.inv_freq'):
+            continue
+        for key_to_modify, new_key in mapping.items():
+            if key_to_modify in key:
+                key = key.replace(key_to_modify, new_key)
+        new_state_dict[key] = value
+    return new_state_dict
 
 class AuroraModel(BaseModel):
     def __init__(
@@ -126,6 +139,7 @@ class AuroraModel(BaseModel):
                 self.load_state_dict(pretrained_state_dict, strict=False)
             print(f"Load pretrained weight from {pretrained_pth}")
 
+        self.projector_depth = projector_depth
         self.visual_select_layer = visual_select_layer
 
         self._is_init = True
@@ -503,20 +517,20 @@ class AuroraModel(BaseModel):
                 '`pip install git+https://github.com/haotian-liu/LLaVA.git '
                 '--no-deps`.')
 
-        assert getattr(self.llm, 'hf_quantizer', None) is None, \
-            'This conversion format does not support quantized LLM.'
+        if getattr(self.llm, 'hf_quantizer', None) is not None:
+            llm = self.llm.dequantize()
+            print_log('Dequantize LLM', 'current')
+            llm.config.use_cache = True
+        else:
+            # get state_dict
+            llm = self.llm
+            if self.use_llm_lora:
+                llm = self.llm.merge_and_unload()
+            llm.config.use_cache = True
+            if not fp32:
+                print_log('Convert LLM to float16', 'current')
+                llm.half()
 
-        # get state_dict
-        llm = self.llm
-        if self.use_llm_lora:
-            llm = self.llm.merge_and_unload()
-        llm.config.use_cache = True
-        if not fp32:
-            print_log('Convert LLM to float16', 'current')
-            llm.half()
-
-        assert isinstance(llm, LlamaForCausalLM), \
-            'This conversion format only supports LlamaForCausalLM.'
         llm_state_dict = llm.state_dict()
 
         need_visual_encoder = (not self.freeze_visual_encoder
@@ -565,6 +579,9 @@ class AuroraModel(BaseModel):
                 use_cache=True,
                 use_mm_proj=True))
 
+        llava_config_dict.pop('quantization_config', None)
+        llava_config_dict.pop('torch_dtype', None)
+        llava_config_dict.pop('_pre_quantization_dtype', None)
         llava_config = LlavaConfig(**llava_config_dict)
 
         with init_empty_weights():
@@ -572,16 +589,21 @@ class AuroraModel(BaseModel):
                 warnings.filterwarnings(
                     'ignore', message='.*non-meta.*', category=UserWarning)
                 model = LlavaLlamaForCausalLM(llava_config)
-
         model.load_state_dict(state_dict, strict=True, assign=True)
 
         # save
         print_log(f'Saving to {save_dir}', 'current')
-
         model.save_pretrained(save_dir, **save_pretrained_kwargs)
         image_processor.save_pretrained(save_dir, **save_pretrained_kwargs)
         tokenizer.save_pretrained(save_dir, **save_pretrained_kwargs)
-
+        
+        # change config.json: model_type to 'llava'
+        config_path = osp.join(save_dir, 'config.json')
+        with open(config_path, 'r') as f:
+            config = json.load(f)
+        config['model_type'] = 'llava'
+        with open(config_path, 'w') as f:
+            json.dump(config, f, indent=4)
     
 
 class AuroraAttention(nn.Module):

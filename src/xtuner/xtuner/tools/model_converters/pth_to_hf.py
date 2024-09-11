@@ -76,6 +76,11 @@ def main():
                                               str) else cfg.model.type.__name__
     use_meta_init = True
 
+    if 'AuroraModel' in model_name:
+        cfg.model.pretrained_pth = None
+        cfg.model.llm.pop('quantization_config', None)
+        if args.save_format != 'xtuner':
+            use_meta_init = False
     if 'LLaVAModel' in model_name:
         cfg.model.pretrained_pth = None
         if args.save_format != 'xtuner':
@@ -110,6 +115,13 @@ def main():
             state_dict = guess_load_checkpoint(args.pth_model)
     else:
         state_dict = guess_load_checkpoint(args.pth_model)
+    
+    if 'AuroraModel' in model_name:
+        try:
+            # pop pos_emb in state_dict since it is only used in training
+            state_dict.pop('visual_encoder.pos_emb', None)
+        except:
+            pass
 
     for name, param in tqdm(state_dict.items(), desc='Load State Dict'):
         set_module_tensor_to_device(model, name, 'cpu', param)

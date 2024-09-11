@@ -6,7 +6,7 @@ A more efficient multimodal large language model series.
 [![](https://img.shields.io/badge/docs-922133)](docs/auroracap/README.md)
 [![](https://img.shields.io/badge/web-922133)](https://rese1f.github.io/aurora-web/)
 [![](http://img.shields.io/badge/arXiv-922133)](https://arxiv.org/abs/2409.)
-[![](https://img.shields.io/badge/%F0%9F%A4%97%20_model-ffc107?color=ffc107&logoColor=white)]()
+[![](https://img.shields.io/badge/%F0%9F%A4%97%20_AuroraCap_model-ffc107?color=ffc107&logoColor=white)]()
 [![](https://img.shields.io/badge/%F0%9F%A4%97%20_VDC_benchmark-ffc107?color=ffc107&logoColor=white)]()
 
 ## News
@@ -36,7 +36,6 @@ pip install aurora
 For further development, clone this repository and install from source.
 ```
 git clone https://github.com/rese1f/aurora.git && cd aurora
-pip install -r requirements.txt
 ```
 
 For training, install additional dependencies.

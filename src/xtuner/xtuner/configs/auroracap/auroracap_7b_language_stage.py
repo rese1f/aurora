@@ -22,10 +22,15 @@ from xtuner.utils import PROMPT_TEMPLATE
 #######################################################################
 #                          PART 1  Settings                           #
 #######################################################################
-# Model
+# # Model
+# llm_name_or_path = 'lmsys/vicuna-7b-v1.5-16k'
+# visual_encoder_name_or_path = 'work_dirs/model_name/visual_encoder'
+# pretrained_pth = 'work_dirs/model_name/projector'
+
 llm_name_or_path = 'lmsys/vicuna-7b-v1.5-16k'
-visual_encoder_name_or_path = 'work_dirs/model_name/visual_encoder'
-pretrained_pth = 'work_dirs/model_name/projector'
+visual_encoder_name_or_path = '/data/wenhao/projects/xtuner/work_dirs/final_video_dense_sharecap/visual_encoder'
+pretrained_pth = '/data/wenhao/projects/xtuner/work_dirs/final_video_dense_sharecap/projector'
+
 
 prompt_template = PROMPT_TEMPLATE.vicuna
 max_length = 4096
@@ -69,7 +74,7 @@ model = dict(
     freeze_llm=False,
     freeze_visual_encoder=False,
     freeze_proj=False,
-    sf=sf,
+    slowfast=slowfast,
     pretrained_pth=pretrained_pth,
     llm=dict(
         type=AutoModelForCausalLM.from_pretrained,
@@ -99,7 +104,6 @@ image_folder = data_root
 llava_dataset_1 = dict(
     type=AuroraDataset,
     data_path=data_path,
-    tokenizer=tokenizer,
     # offline_processed_text_folder='', # Folder Path of the pre-processed dataset using 'bash scripts/preprocess_training_data.sh'
     image_folder=image_folder,
     tokenizer=tokenizer,
@@ -116,7 +120,6 @@ image_folder = data_root
 llava_dataset_2 = dict(
     type=AuroraDataset,
     data_path=data_path,
-    tokenizer=tokenizer,
     # offline_processed_text_folder='', # Folder Path of the pre-processed dataset using 'bash scripts/preprocess_training_data.sh'
     image_folder=image_folder,
     tokenizer=tokenizer,
@@ -133,7 +136,6 @@ image_folder = data_root
 llava_dataset_3 = dict(
     type=AuroraDataset,
     data_path=data_path,
-    tokenizer=tokenizer,
     # offline_processed_text_folder='', # Folder Path of the pre-processed dataset using 'bash scripts/preprocess_training_data.sh'
     image_folder=image_folder,
     tokenizer=tokenizer,
