@@ -27,17 +27,19 @@ The training config example can be found in `src/xtuner/xtuner/configs/auroracap
 To launch the training with a single GPU, use the following code:
 ```
 cd src/xtuner
-# On a single GPU
+# On single GPU
 python xtuner/tools/train.py \
     ${CONFIG_PATH} \
     --work-dir ${LOG_PATH} \
     --deepspeed deepspeed_zero2
 # On multiple GPUs
-(DIST) python NPROC_PER_NODE=${GPU_NUM} xtuner/tools/train.py \
+# DIST 
+python NPROC_PER_NODE=${GPU_NUM} xtuner/tools/train.py \
     ${CONFIG_PATH} \
     --work-dir ${LOG_PATH} \
     --deepspeed deepspeed_zero2
-(SLURM)  srun ${SRUN_ARGS} xtuner/tools/train.py \
+# SLURM
+srun ${SRUN_ARGS} xtuner/tools/train.py \
     ${CONFIG_PATH} \
     --work-dir ${LOG_PATH} \
     --deepspeed deepspeed_zero2

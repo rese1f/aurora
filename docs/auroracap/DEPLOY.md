@@ -22,7 +22,7 @@ python -m sglang.launch_server_auroracap \
     --port=30000 --chat-template=chatml-llava
 ```
 
-We provide the example inference code for Aurora.
+We provide the example inference code for Aurora using another terminal.
 ```
 from sglang import function, system, user, assistant, gen, set_default_backend, RuntimeEndpoint
 import sglang as sgl
