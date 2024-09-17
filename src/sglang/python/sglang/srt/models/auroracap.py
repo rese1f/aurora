@@ -17,8 +17,10 @@ limitations under the License.
 
 from typing import Iterable, List, Optional, Tuple, Callable, Union
 import math
+import time
 import os.path as osp
 import numpy as np
+from einops import rearrange
 import torch
 import torch.nn.functional as F
 from torch import nn
@@ -54,14 +56,11 @@ class AuroraCapForCausalLM(nn.Module):
         self.hidden_size = config.hidden_size
         self.config.vision_config.hidden_size = config.mm_hidden_size
         self.multi_modal_projector = LlavaMultiModalProjector(config)
-        self.mm_spatial_pool_stride = getattr(self.config, "mm_spatial_pool_stride", 2)
-        self.resampler = nn.AvgPool2d(
-            kernel_size=self.mm_spatial_pool_stride, stride=self.mm_spatial_pool_stride
-        )
 
         self.language_model = LlamaForCausalLM(config, quant_config=quant_config)
         self.num_frames = getattr(self.config, "num_frames", 16)
         self.tome_ratio = getattr(self.config, "tome_ratio", 1.0)
+        self.visual_select_layer = getattr(self.config, "visual_select_layer", -2)
         if "unpad" in getattr(config, "mm_patch_merge_type", ""):
             self.language_model.model.image_newline = nn.Parameter(
                 torch.empty(config.hidden_size, dtype=torch.float16)
@@ -89,34 +88,19 @@ class AuroraCapForCausalLM(nn.Module):
         return new_input_ids, [offset]
 
     def encode_images(self, pixel_values: torch.Tensor) -> torch.Tensor:
-        image_outputs = self.vision_tower(pixel_values, self.tome_ratio, output_hidden_states=True)
+        print('here run ~~!!!!!!!!!!')
+        self.vision_tower.reset_tome_r(self.tome_ratio)
+        if pixel_values.ndim == 4:
+            pixel_values = pixel_values.unsqueeze(1) 
+        b, f = pixel_values.shape[0], pixel_values.shape[1]
+        pixel_values = rearrange(pixel_values, "b f c h w -> (b f) c h w")
+        visual_outputs = self.vision_tower(pixel_values, output_hidden_states=True)
+        visual_outputs = visual_outputs.hidden_states[self.visual_select_layer][:, 1:]
+        visual_outputs = rearrange(visual_outputs, "(b f) n c -> b (f n) c", b=b)
+        visual_outputs = self.multi_modal_projector(visual_outputs)
+        visual_outputs = rearrange(visual_outputs, "b (f n) c -> b f n c", f=f)
 
-        selected_image_feature = image_outputs.hidden_states[self.vision_feature_layer]
-        if self.vision_feature_select_strategy in ["default", "patch"]:
-            selected_image_feature = selected_image_feature[:, 1:]
-        elif self.vision_feature_select_strategy == "full":
-            selected_image_feature = selected_image_feature
-        else:
-            raise ValueError(
-                f"Unexpected select feature strategy: {self.config.vision_feature_select_strategy}"
-            )
-
-        height = width = self.num_patches_per_side
-        num_of_frames = selected_image_feature.shape[0]
-        selected_image_feature = selected_image_feature.view(
-            num_of_frames, height, width, -1
-        )
-        selected_image_feature = selected_image_feature.permute(0, 3, 1, 2).contiguous()
-        selected_image_feature = (
-            self.resampler(selected_image_feature)
-            .flatten(2)
-            .transpose(1, 2)
-            .contiguous()
-        )
-
-        image_features = self.multi_modal_projector(selected_image_feature)
-
-        return image_features
+        return visual_outputs
 
     @torch.no_grad()
     def forward(
@@ -128,6 +112,7 @@ class AuroraCapForCausalLM(nn.Module):
         image_sizes: Optional[List[List[int]]] = None,
         image_offsets: Optional[List[int]] = None,
     ) -> torch.Tensor:
+        start_time = time.time()
         if input_metadata.forward_mode == ForwardMode.EXTEND:
             bs = input_metadata.batch_size
 
@@ -143,9 +128,7 @@ class AuroraCapForCausalLM(nn.Module):
 
             if need_vision.any():
                 pixel_values = [pixel_values[i] for i in range(bs) if need_vision[i]]
-
                 ########## Encode Image ########
-
                 if pixel_values[0].ndim == 4:
                     # llava-hd: BS, num_patch, C=3, H=336, W=336, num_patch obtained from process_images
                     np.concatenate(pixel_values, axis=0)
@@ -158,8 +141,6 @@ class AuroraCapForCausalLM(nn.Module):
                     image_features = self.encode_images(
                         concat_images,
                     )  # , prompts)#, image_counts, long_video=long_video)
-                    split_sizes = [image.shape[0] for image in pixel_values]
-                    image_features = torch.split(image_features, split_sizes, dim=0)
 
                     # hd image_features: BS, num_patch, 576, 4096
                 else:
@@ -205,12 +186,17 @@ class AuroraCapForCausalLM(nn.Module):
                                 f"{start_idx=}, {image_offset=}, {prefix_len=}, {pad_len=}"
                             )
                         pt += 1
-
-            return self.language_model(
+            output_text = self.language_model(
                 input_ids, positions, input_metadata, input_embeds=input_embeds
             )
+            end_time = time.time()-start_time
+            print(f"Time taken: {end_time} seconds")
+            return output_text
         elif input_metadata.forward_mode == ForwardMode.DECODE:
-            return self.language_model(input_ids, positions, input_metadata)
+            output_text = self.language_model(input_ids, positions, input_metadata)
+            end_time = time.time()-start_time
+            print(f"Time taken: {end_time} seconds")
+            return output_text
 
     def load_weights(self, weights: Iterable[Tuple[str, torch.Tensor]]):
         # Load clip vision model by cfg['mm_vision_tower']:
@@ -233,7 +219,7 @@ class AuroraCapForCausalLM(nn.Module):
 
         print(f"target_frames: {self.num_frames}")
         self.image_feature_len = self.num_frames * int(
-            (self.image_size / self.patch_size / self.mm_spatial_pool_stride) ** 2
+            (self.image_size / self.patch_size) ** 2
         )
         if self.vision_feature_select_strategy == "patch":
             pass

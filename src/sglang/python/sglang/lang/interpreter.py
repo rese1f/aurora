@@ -35,6 +35,7 @@ from sglang.utils import (
     encode_video_base64,
     get_exception_traceback,
 )
+from sglang.srt.utils import decode_video_base64
 
 
 def run_internal(state, program, func_args, func_kwargs, sync):
@@ -436,6 +437,7 @@ class StreamExecutor:
 
         # if global_config.eager_fill_image:
         #     self.backend.fill_image(self)
+
 
     def _spec_gen(self, sampling_params):
         stop = sampling_params.stop

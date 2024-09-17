@@ -3,6 +3,8 @@
 import base64
 import importlib
 import json
+import av
+from av.codec.context import CodecContext
 import logging
 import os
 import signal
@@ -139,6 +141,15 @@ def encode_frame(frame):
     # Return the bytes of the frame
     return frame_bytes
 
+def record_video_length_packet(container):
+    frames = []
+    # https://github.com/PyAV-Org/PyAV/issues/1269
+    # https://www.cnblogs.com/beyond-tester/p/17641872.html
+    # context = CodecContext.create("libvpx-vp9", "r")
+    for packet in container.demux(video=0):
+        for frame in packet.decode():
+            frames.append(frame)
+    return frames
 
 def encode_video_base64(video_path: str, num_frames: int = 16):
     import cv2  # pip install opencv-python-headless
@@ -171,11 +182,11 @@ def encode_video_base64(video_path: str, num_frames: int = 16):
     while len(frames) < num_frames:
         frames.append(frames[-1])
 
-    # Use ThreadPoolExecutor to process and encode frames in parallel
-    with ThreadPoolExecutor() as executor:
-        encoded_frames = list(executor.map(encode_frame, frames))
+    # # Use ThreadPoolExecutor to process and encode frames in parallel
+    # with ThreadPoolExecutor() as executor:
+    #     encoded_frames = list(executor.map(encode_frame, frames))
 
-    # encoded_frames = list(map(encode_frame, frames))
+    encoded_frames = list(map(encode_frame, frames))
 
     # Concatenate all frames bytes
     video_bytes = b"".join(encoded_frames)
