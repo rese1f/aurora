@@ -1,0 +1,7 @@
+{
+    "llava_sft": {
+        "image_dir": "/mnt/hwfile/xtuner/linzhihao/dataset/llava_data/llava_images",
+        "annotations": "/mnt/hwfile/xtuner/linzhihao/dataset/llava_data/LLaVA-Instruct-150K/llava_v1_5_mix665k.json",
+        "sample_ratio": 1.0
+    }
+}
