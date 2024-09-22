@@ -7,7 +7,8 @@ A more efficient multimodal large language model series.
 [![](https://img.shields.io/badge/web-922133)](https://rese1f.github.io/aurora-web/)
 [![](http://img.shields.io/badge/arXiv-922133)](https://arxiv.org/abs/2409.)
 [![](https://img.shields.io/badge/%F0%9F%A4%97%20_AuroraCap_model-ffc107?color=ffc107&logoColor=white)](https://huggingface.co/collections/Reself/auroracap-66d117ffe13bedda96702013)
-[![](https://img.shields.io/badge/%F0%9F%A4%97%20_VDC_benchmark-ffc107?color=ffc107&logoColor=white)](https://huggingface.co/collections/Reself/auroracap-66d117ffe13bedda96702013)
+[![](https://img.shields.io/badge/%F0%9F%A4%97%20_VDC_benchmark-ffc107?color=ffc107&logoColor=white)](https://huggingface.co/datasets/Reself/Video-Detailed-Caption)
+[![](https://img.shields.io/badge/%F0%9F%A4%97%20_Trainset-ffc107?color=ffc107&logoColor=white)](https://huggingface.co/datasets/Reself/AuroraCap-trainset)
 
 <img src="assets/auroracap/vdc_baseline.png" align="center">
 
@@ -63,6 +64,12 @@ pip install flashinfer -i https://flashinfer.ai/whl/cu121/torch2.4/
 #### with SGLang
 
 #### with Gradio GUI
+
+## FAQ
+
+Q: Can I only use token merging during inference?
+
+A: No, our experiments show that token merging is also a way to accelerate training while maintaining similar performance. Additionally, besides auroracap, you can also use token merging on other llava-like models.
 
 ## Citation
 
