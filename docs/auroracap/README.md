@@ -4,6 +4,7 @@
 
 - [Website](https://rese1f.github.io/aurora-web/)
 - [arXiv: Paper]()
+- [GitHub: Code](https://github.com/rese1f/aurora)
 - [Huggingface: AuroraCap Model](https://huggingface.co/collections/Reself/auroracap-66d117ffe13bedda96702013)
 - [Huggingface: VDC Benchmark](https://huggingface.co/datasets/Reself/Video-Detailed-Caption)
 - [Huggingface: Trainset](https://huggingface.co/datasets/Reself/AuroraCap-trainset)
