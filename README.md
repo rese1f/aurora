@@ -1,7 +1,7 @@
 # Aurora Series
 A more efficient multimodal large language model series.
 
-> [**AuroraCap**](docs/auroracap/README.md) &emsp; A Detailed Captioning Baseline and Benchmark for Video  
+> [**AuroraCap**](docs/auroracap/README.md) &emsp; Less is More for Efficient Video Detailed Captioning and a New Benchmark  
 
 [![](https://img.shields.io/badge/docs-922133)](docs/auroracap/README.md)
 [![](https://img.shields.io/badge/web-922133)](https://rese1f.github.io/aurora-web/)
