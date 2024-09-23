@@ -51,7 +51,7 @@ class AuroraCap(lmms):
         self,
         pretrained_llm: str = "meta-llama/Meta-Llama-3-8B-Instruct",
         pretrained_vit: str = "google/siglip-so400m-patch14-384",
-        pretrained: str = "work_dirs/model_name",
+        pretrained: str = "model/PATH",
         resolution: int = 378,
         token_merge_ratio: float = 0.4,
         device: Optional[str] = "cuda",
@@ -60,7 +60,7 @@ class AuroraCap(lmms):
         conv_template="vicuna_v1", #vicuna_v1",
         video_decode_backend: str = "pyav",
         max_frames_num: int = 16,
-        sf: bool = False,
+        slowfast: bool = False,
         **kwargs,
     ) -> None:
         super().__init__()
@@ -79,20 +79,11 @@ class AuroraCap(lmms):
         pretrained_vit = osp.join(pretrained_pth, "visual_encoder")
 
         self._model = AuroraModel(
-            sf=sf,
+            slowfast=slowfast,
             llm=AutoModelForCausalLM.from_pretrained(
                 pretrained_model_name_or_path=pretrained_llm,
                 trust_remote_code=True,
                 torch_dtype=torch.float16,
-                quantization_config=BitsAndBytesConfig(
-                    load_in_4bit=True,
-                    load_in_8bit=False,
-                    llm_int8_threshold=6.0,
-                    llm_int8_has_fp16_weight=False,
-                    bnb_4bit_compute_dtype=torch.float16,
-                    bnb_4bit_use_double_quant=True,
-                    bnb_4bit_quant_type='nf4',
-                ),
             ),
             visual_encoder=AuroraEncoder.from_pretrained(
                 pretrained_model_name_or_path=pretrained_vit,
@@ -102,7 +93,7 @@ class AuroraCap(lmms):
         
         projector_path = osp.join(pretrained_pth, "projector")
         self.model.projector = AutoModel.from_pretrained(projector_path, torch_dtype=torch.float16, trust_remote_code=True)
-        
+
         self._image_processor = CLIPImageProcessor.from_pretrained(
             pretrained_model_name_or_path="laion/CLIP-ViT-bigG-14-laion2B-39B-b160k",  # use standard CLIP processor
             trust_remote_code=True,
@@ -528,7 +519,6 @@ class AuroraCap(lmms):
 
         pbar.close()
         return res
-
 
 
 

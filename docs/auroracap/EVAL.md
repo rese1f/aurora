@@ -1,6 +1,21 @@
 # Eval
 powered by [lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval).
 
+## Environment Prepare
+
+For development, you can install the package by running the following command:
+```
+cd src/lmms-eval
+pip install -e .
+pip install flash-attn==2.3.6 --no-build-isolation
+```
+
+Since AuroraCap is based on the LLaVA model, you will need to install the required packages for LLaVA in order to test AuroraCap:
+```
+cd src/lmms-eval/LLaVA-NeXT
+pip install -e .
+```
+
 ## Weight convert
 Before evaluation with lmms-eval, make sure the model is a Hugging Face model.
 ```

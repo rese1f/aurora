@@ -1,6 +1,13 @@
 # Train
 powered by [Xtuner](https://github.com/InternLM/xtuner), refer to the original [docs](../../src/xtuner/README.md) for more details.
 
+## Environment preparation
+Before launching training, you need to set up the environment to support Xtuner training..
+```
+cd src/xtuner
+pip install -e '.[all]'
+```
+
 ## Dataset preparation
 
 Dataset prepare guides for original llava data can be found on [dataset_prepare.md](../../src/xtuner/docs/en/user_guides/dataset_prepare.md#dataset-prepare##others###llava_dataset). For the additional data from the other sources, we recommand convert into llava dataset format.
@@ -13,6 +20,42 @@ python xtuner/tools/process_untokenized_llava_data.py \
     ${CONFIG_PATH} \
     --save-folder ${SAVE_PATH}
 ```
+
+After pre-tokenization for the training data, you need to modify the config as follow:
+```
+data_root = 'data/dataset_name'
+data_path = data_root + 'jsons/prompt_data.jsonl' # Change the data path to your exact path
+image_folder = data_root
+train_dataset = dict(
+    type=AuroraDataset,
+    # data_path=data_path,
+    offline_processed_text_folder='', # Folder Path of the pre-processed dataset using 'bash scripts/preprocess_training_data.sh'
+    image_folder=image_folder,
+    # tokenizer=tokenizer,
+    image_processor=image_processor,
+    dataset_map_fn=aurora_map_fn,
+    template_map_fn=dict(
+        type=template_map_fn_factory, template=prompt_template),
+    max_length=max_length,
+    pad_image_to_square=True)
+```
+
+If the items in `data_path` is too much, such as over 1M, the CPU may overload during processing. Therefore, we recommend using the following code, which processes the data in multiple batches (we set the batch size to 100k in our configuration).
+```
+python xtuner/tools/process_untokenized_large_data.py \
+    ${CONFIG_PATH} \
+    --save-folder ${SAVE_FOLDER} \
+    --input-file ${DATA_PATH} \
+    --jsonl-output-folder ${TMP_FOLDER} \
+```
+`save-folder` means the folder to save the sharded pre-tokenization data, `jsonl-output-folder` stores the sharded jsonl files.
+
+```
+python scripts/merge_trunck.py \
+    --data_folder ${SAVE_FOLDER} \
+    --save_folder ${SAVE_PATH}
+```
+`data_folder` means the folder of the sharded pre-tokenization data, `save_folder` stores the merged pre-tokenization data and will output the number of the items and the first case.
 
 ## Training config
 

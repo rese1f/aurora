@@ -234,8 +234,7 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                     tokenizer = AutoTokenizer.from_pretrained(model_path, use_fast=False)
                     if customized_config is None:
                         llava_cfg = LlavaConfig.from_pretrained(model_path)
-                        if "v1.5" in model_path.lower():
-                            llava_cfg.delay_load = True  # a workaround for correctly loading v1.5 models
+                        llava_cfg.delay_load = True  # a workaround for correctly loading v1.5 models
                     else:
                         llava_cfg = customized_config
 
@@ -243,8 +242,9 @@ def load_pretrained_model(model_path, model_base, model_name, load_8bit=False, l
                         rank0_print(f"Overwriting config with {overwrite_config}")
                         for k, v in overwrite_config.items():
                             setattr(llava_cfg, k, v)
-                    model = LlavaLlamaForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=True, attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
-                except:
+                    model = LlavaLlamaForCausalLM.from_pretrained(model_path, low_cpu_mem_usage=[1,2,3], attn_implementation=attn_implementation, config=llava_cfg, **kwargs)
+                except Exception as e:
+                    print(e)
                     raise ValueError(f"Model {model_name} not supported")
 
     else:
