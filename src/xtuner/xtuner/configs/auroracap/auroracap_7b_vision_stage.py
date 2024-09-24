@@ -25,7 +25,7 @@ from xtuner.utils import PROMPT_TEMPLATE
 # Model
 llm_name_or_path = 'lmsys/vicuna-7b-v1.5-16k'
 visual_encoder_name_or_path = 'apple/DFN5B-CLIP-ViT-H-14-378'
-pretrained_pth = '/data/wenhao/projects/AuroraCap/src/work_dirs/model_name/iter_100.pth'
+pretrained_pth = 'model_path/projector'
 
 prompt_template = PROMPT_TEMPLATE.vicuna
 max_length = 4096

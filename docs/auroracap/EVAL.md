@@ -25,6 +25,15 @@ python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
     ${SAVE_PATH} \
 ```
 
+
+## Pretrained model
+We also provide the pretrained AuroraCap model in Hugging Face format
+
+- 7B model for video captioning: `wchai/AuroraCap-7B-VID-hf`
+- 7B model for image captioning: `wchai/AuroraCap-7B-IMG-hf`
+
+replace the `pretrained` argument in the evaluation script with the model name above.
+
 ## Launch evaluation
 We provide the example evaluation scripts:
 ```

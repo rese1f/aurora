@@ -27,9 +27,9 @@ from xtuner.utils import PROMPT_TEMPLATE
 # visual_encoder_name_or_path = 'work_dirs/model_name/visual_encoder'
 # pretrained_pth = 'work_dirs/model_name/projector'
 
-llm_name_or_path = 'lmsys/vicuna-7b-v1.5-16k'
-visual_encoder_name_or_path = '/data/wenhao/projects/xtuner/work_dirs/final_video_dense_sharecap/visual_encoder'
-pretrained_pth = '/data/wenhao/projects/xtuner/work_dirs/final_video_dense_sharecap/projector'
+llm_name_or_path = 'model_path/llm'
+visual_encoder_name_or_path = 'model_path/visual_encoder'
+pretrained_pth = 'model_path/projector'
 
 
 prompt_template = PROMPT_TEMPLATE.vicuna
