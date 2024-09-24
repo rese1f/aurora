@@ -17,7 +17,7 @@ pip install -e .
 ```
 
 ## Weight convert
-Before evaluation with lmms-eval, make sure the model is a Hugging Face model.
+Before evaluation with lmms-eval, make sure the model is in Xtuner format.
 ```
 python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
     ${CONFIG_PATH}  \
@@ -27,7 +27,7 @@ python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
 
 
 ## Pretrained model
-We also provide the pretrained AuroraCap model in Hugging Face format
+We also provide the pretrained AuroraCap model in Xtuner format
 
 - 7B model for video captioning: `wchai/AuroraCap-7B-VID-xtuner`
 - 7B model for image captioning: `wchai/AuroraCap-7B-IMG-xtuner`

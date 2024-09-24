@@ -90,7 +90,7 @@ srun ${SRUN_ARGS} xtuner/tools/train.py \
 - `--deepspeed` means using DeepSpeed to optimize the training. XTuner comes with several integrated strategies including ZeRO-1, ZeRO-2, and ZeRO-3. If you wish to disable this feature, simply remove this argument.
 
 ## Weight convert
-After training, convert the saved `.pth` model (if using DeepSpeed, it will be a directory) to Hugging Face model, by 
+After training, convert the saved `.pth` model (if using DeepSpeed, it will be a directory) to Xtuner format model, by 
 ```
 python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
     ${CONFIG_PATH}  \
