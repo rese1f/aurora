@@ -27,7 +27,7 @@ def process_text(inputs, tokenizer):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, help='path to the model', default='wchai/AuroraCap-7B-VID-hf')
+    parser.add_argument('--model_path', type=str, help='path to the model', default='wchai/AuroraCap-7B-VID-xtuner')
     parser.add_argument('--prompt', type=str, help='prompt for the model', default='Describe the video in detail.')
     parser.add_argument('--visual_input', type=str, help='path to the video or image file', default='assets/auroracap/test.mp4')
     parser.add_argument('--num_frm', type=int, help='number of frames to sample from the video', default=8)

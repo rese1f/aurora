@@ -50,7 +50,7 @@ cd src/lmms-eval && pip install -e .
 
 ```
 python inference.py \
-    --model_path wchai/AuroraCap-7B-VID-hf \
+    --model_path wchai/AuroraCap-7B-VID-xtuner \
     --prompt "Describe the video in detail." \
     --visual_input assets/auroracap/test.mp4 \
     --num_frm 8 \

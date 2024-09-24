@@ -28,7 +28,7 @@ AuroraCap is a efficient captioning model for image and video, achieving the bes
 
 ```
 python inference.py \
-    --model_path wchai/AuroraCap-7B-VID-hf \
+    --model_path wchai/AuroraCap-7B-VID-xtuner \
     --prompt "Describe the video in detail." \
     --visual_input assets/auroracap/test.mp4 \
     --num_frm 8 \
@@ -44,5 +44,15 @@ with Gradio GUI
 ```
 python gradio_gui.py
 ```
+
+## FAQ
+
+Q: Can I only use token merging during inference?
+
+A: No, our experiments show that token merging is also a way to accelerate training while maintaining similar performance. Additionally, besides auroracap, you can also use token merging on other llava-like models.
+
+Q: Why do we provide both official LLaVA-format and Xtuner format weights for AuroraCap?
+
+A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the official LLaVA format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
 
 ## Citation

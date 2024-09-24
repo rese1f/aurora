@@ -114,7 +114,7 @@ if __name__ == "__main__":
                 output = gr.Textbox(label="Output")
                 prompt = gr.Textbox(label="Prompt", value="Describe the video in detail.")
             with gr.Column():
-                model_path = gr.Textbox(label="Model Path", value="wchai/AuroraCap-7B-VID-hf")
+                model_path = gr.Textbox(label="Model Path", value="wchai/AuroraCap-7B-VID-xtuner")
                 token_kept_ratio = gr.Slider(0, 1, value=0.2, step=0.01, label="Token Kept Ratio")
                 num_frm = gr.Slider(1, 16, value=8, step=1, label="Num Frames (only for video)")
                 with gr.Accordion("Advanced Options", open=False):
