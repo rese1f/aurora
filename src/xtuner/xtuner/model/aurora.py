@@ -517,17 +517,19 @@ class AuroraModel(BaseModel):
                 '`pip install git+https://github.com/haotian-liu/LLaVA.git '
                 '--no-deps`.')
 
-        assert getattr(self.llm, 'hf_quantizer', None) is None, \
-            'This conversion format does not support quantized LLM.'
-
-        # get state_dict
-        llm = self.llm
-        if self.use_llm_lora:
-            llm = self.llm.merge_and_unload()
-        llm.config.use_cache = True
-        if not fp32:
-            print_log('Convert LLM to float16', 'current')
-            llm.half()
+        if getattr(self.llm, 'hf_quantizer', None) is not None:
+            llm = self.llm.dequantize()
+            print_log('Dequantize LLM', 'current')
+            llm.config.use_cache = True
+        else:
+            # get state_dict
+            llm = self.llm
+            if self.use_llm_lora:
+                llm = self.llm.merge_and_unload()
+            llm.config.use_cache = True
+            if not fp32:
+                print_log('Convert LLM to float16', 'current')
+                llm.half()
 
         llm_state_dict = llm.state_dict()
 

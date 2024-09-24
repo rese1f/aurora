@@ -97,4 +97,4 @@ python src/xtuner/xtuner/tools/model_converters/pth_to_hf.py \
     ${PTH_PATH} \
     ${SAVE_PATH} \
 ```
-If the saved PTH model need to be the llava format, add `--save-format official`
+If the saved PTH model need to be the llava format, add `--save-format official`. If the saved PTH model need to be the safetensors format, add `--safe-serialization`.

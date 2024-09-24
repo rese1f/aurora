@@ -73,10 +73,9 @@ Q: Can I only use token merging during inference?
 
 A: No, our experiments show that token merging is also a way to accelerate training while maintaining similar performance. Additionally, besides auroracap, you can also use token merging on other llava-like models.
 
-Q: How can I find the official LLaVA-format checkpoint for AuroraCap?
+Q: Why do we provide both official LLaVA-format and Xtuner format weights for AuroraCap?
 
-A: We will release the official LLaVA-format checkpoint at a later time. While Xtuner supports saving checkpoints in both Huggingface and LLaVA formats, it currently only supports continued training with Huggingface. However, we provide the code for evaluation using the Huggingface model.
-
+A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the official LLaVA format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
 ## Citation
 
 ```bibtex
