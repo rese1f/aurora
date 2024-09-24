@@ -109,18 +109,19 @@ if __name__ == "__main__":
                 image = gr.Image(width=640, height=360)
                 image_button = gr.Button("Process Image")
         
-        with gr.Column():
-            output = gr.Textbox(label="Output")
-            gr.Markdown("## Settings")
-            prompt = gr.Textbox(label="Prompt", value="Describe the video in detail.")
-            token_kept_ratio = gr.Slider(0, 1, value=0.2, step=0.01, label="Token Kept Ratio")
-            with gr.Accordion("Advanced Options", open=False):
+        with gr.Row():
+            with gr.Column():
+                output = gr.Textbox(label="Output")
+                prompt = gr.Textbox(label="Prompt", value="Describe the video in detail.")
+            with gr.Column():
                 model_path = gr.Textbox(label="Model Path", value="wchai/AuroraCap-7B-VID-hf")
+                token_kept_ratio = gr.Slider(0, 1, value=0.2, step=0.01, label="Token Kept Ratio")
                 num_frm = gr.Slider(1, 16, value=8, step=1, label="Num Frames (only for video)")
-                temperature = gr.Slider(0, 1, value=0., step=0.01, label="Temperature")
-                top_p = gr.Slider(0, 1, value=1., step=0.01, label="Top P")
-                num_beams = gr.Slider(1, 10, value=1, step=1, label="Num Beams")
-                max_new_tokens = gr.Slider(1, 4096, value=2048, step=1, label="Max New Tokens")
+                with gr.Accordion("Advanced Options", open=False):
+                    temperature = gr.Slider(0, 1, value=0., step=0.01, label="Temperature")
+                    top_p = gr.Slider(0, 1, value=1., step=0.01, label="Top P")
+                    num_beams = gr.Slider(1, 10, value=1, step=1, label="Num Beams")
+                    max_new_tokens = gr.Slider(1, 4096, value=2048, step=1, label="Max New Tokens")
 
         video_button.click(backend.generate_text, inputs=[model_path, prompt, video, num_frm, token_kept_ratio, temperature, top_p, num_beams, max_new_tokens], outputs=[output])
         image_button.click(backend.generate_text, inputs=[model_path, prompt, image, num_frm, token_kept_ratio, temperature, top_p, num_beams, max_new_tokens], outputs=[output])
