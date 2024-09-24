@@ -502,7 +502,7 @@ class AuroraModel(BaseModel):
                           save_pretrained_kwargs={}):
 
         VIT_MAPPING = {
-            'vision_model': 'model.vision_tower.vision_tower.vision_model',
+            'vision_model': 'model.vision_tower.vision_model',
         }
         PROJECTOR_MAPPING = {
             'model.0': 'model.mm_projector.0',
