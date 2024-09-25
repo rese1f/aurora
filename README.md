@@ -14,7 +14,14 @@ A more efficient multimodal large language model series.
 
 ## News
 
-- [2024/] Release AuroraCap model and VDC benchmark, as well as the training and evaluation code.
+- [2024/10/01] Release AuroraCap model and VDC benchmark, as well as the training and evaluation code.
+
+## Future Updates
+
+- [ ] PR to [HuggingFace transformers](https://github.com/huggingface/transformers), but you can also use our [dev branch](https://github.com/rese1f/transformers/tree/aurora) for now.
+- [ ] PR to [EvolvingLMMs-Lab/lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) with model and benchmark.
+- [ ] Support [SGLang](https://github.com/sgl-project/sglang) deployment.
+- [ ] Support training with [Xtuner-lite](https://github.com/hhaAndroid/xtuner) for faster training and easier configuration.
 
 ## Quick Start  
 
@@ -73,9 +80,14 @@ Q: Can I only use token merging during inference?
 
 A: No, our experiments show that token merging is also a way to accelerate training while maintaining similar performance. Additionally, besides auroracap, you can also use token merging on other llava-like models.
 
+Q: How should I set the `token_kept_ratio` parameter?
+
+A: AuroraCap uses token merging technique to reduce the number of visual tokens before fed into the llm decoder. We using `token_kept_ratio` range from 0 to 1 to control the number of visual tokens kept. For example, if `token_kept_ratio` is 0.5, then 50% of the visual tokens will be kept. We recommend to use `token_kept_ratio` in the range of 0.2 to 0.4 for better performance-cost trade-off for captioning tasks, above 0.5 for visual question answering tasks, and above 0.8 for OCR-related tasks.
+
 Q: Why do we provide both official LLaVA-format and Xtuner format weights for AuroraCap?
 
 A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the official LLaVA format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
+
 ## Citation
 
 ```bibtex
