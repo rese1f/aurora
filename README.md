@@ -74,6 +74,9 @@ with Gradio GUI
 python gradio_gui.py
 ```
 
+beta version with transformers see [here](docs/auroracap/README.md#beta-version-with-transformers).
+
+
 ## FAQ
 
 Q: Can I only use token merging during inference?
