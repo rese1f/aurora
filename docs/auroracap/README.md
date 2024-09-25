@@ -55,8 +55,8 @@ Q: How should I set the `token_kept_ratio` parameter?
 
 A: AuroraCap uses token merging technique to reduce the number of visual tokens before fed into the llm decoder. We using `token_kept_ratio` range from 0 to 1 to control the number of visual tokens kept. For example, if `token_kept_ratio` is 0.5, then 50% of the visual tokens will be kept. We recommend to use `token_kept_ratio` in the range of 0.2 to 0.4 for better performance-cost trade-off for captioning tasks, above 0.5 for visual question answering tasks, and above 0.8 for OCR-related tasks.
 
-Q: Why do we provide both official LLaVA-format and Xtuner format weights for AuroraCap?
+Q: Why do we provide both Huggingface format and Xtuner format weights for AuroraCap?
 
-A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the official LLaVA format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
+A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the Huggingface format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
 
 ## Citation
