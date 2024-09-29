@@ -74,13 +74,7 @@ model = dict(
         torch_dtype=torch.float16),
     visual_encoder=dict(
         type=CLIPVisionModel.from_pretrained,
-        pretrained_model_name_or_path=visual_encoder_name_or_path),
-    visual_encoder_lora=dict(
-        type=LoraConfig,
-        r=64, 
-        lora_alpha=16, 
-        lora_dropout=0.05, 
-        bias='none')
+        pretrained_model_name_or_path=visual_encoder_name_or_path)
         )
 
 #######################################################################
