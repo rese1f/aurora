@@ -49,8 +49,13 @@ python3 -m accelerate.commands.launch \
     --output_path ${LOG_PATH}
 ```
 `num_processes` change it to perform multi node evaluation
+
 `pretrained` checkpoint path
+
 `token_merge_ratio` range from 0.01 to 1
+
 `slow_fast` whether use slow-fast
+
 `tasks` add yaml name under `src/lmms-eval/lmms_eval/tasks`, like `vatex_test`
+
 `batch_size` we support only 1 for now.
