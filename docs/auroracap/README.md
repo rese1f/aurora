@@ -3,7 +3,7 @@
 ## Resources
 
 - [Website](https://rese1f.github.io/aurora-web/)
-- [arXiv: Paper]()
+- [arXiv: Paper](https://arxiv.org/abs/2410.03051)
 - [GitHub: Code](https://github.com/rese1f/aurora)
 - [Huggingface: AuroraCap Model](https://huggingface.co/collections/wchai/auroracap-66d117ffe13bedda96702013)
 - [Huggingface: VDC Benchmark](https://huggingface.co/datasets/wchai/Video-Detailed-Caption)
