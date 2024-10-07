@@ -19,10 +19,13 @@
 
 ## Features
 
-AuroraCap is a efficient captioning model for image and video, achieving the best trade-off between performance and efficiency.
+AuroraCap is a efficient captioning model for image and video, achieving the best trade-off between performance and efficiency. Code for figure below can be found [here](../../figure_in_paper.ipynb).
 
 <img src="../../assets/auroracap/vdc_baseline.png" align="center">
 
+<br>
+
+<img src="../../assets/auroracap/tome.png" align="center">
 
 ## Quick Start
 
