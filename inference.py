@@ -77,7 +77,7 @@ if __name__ == "__main__":
         image_tokens = " ".join(image_tokens)
     elif args.visual_input.endswith('png') or args.visual_input.endswith('jpg'):
         image = Image.open(args.visual_input)
-        image_tensor = image_processor(image, return_tensors='pt')['pixel_values'].to(dtype=torch.float16)
+        image_tensor = image_processor(image, return_tensors='pt')['pixel_values'].to(dtype=torch.float16).cuda()
         image_tokens = DEFAULT_IMAGE_TOKEN
         data["pixel_values"] = image_tensor
 
