@@ -21,11 +21,20 @@
 
 AuroraCap is a efficient captioning model for image and video, achieving the best trade-off between performance and efficiency. Code for figure below can be found [here](../../figure_in_paper.ipynb).
 
+AuroraCap achieves superior performance in video detailed captioning while utilizing significantly fewer visual tokens than other models, fully highlighting the efficiency of AuroraCap.
 <img src="../../assets/auroracap/vdc_baseline.png" align="center">
 
 <br>
 
+As a core training and inference strategy of AuroraCap, token merging plays a significant role in reducing the number of visual tokens. We further study how the AuroraCap's performance is influenced by token merge ratio. The solid line indicates the average performance, and the shaded area represents performance variability. We found that token merging significantly reduces the number of tokens while maintaining minimal performance drop.
+
 <img src="../../assets/auroracap/tome.png" align="center">
+
+<br>
+
+We also show token merging visualization examples. rom top to bottom, the image IDs are COCO:COCO-train2014-000000247906, VG:2331508, SA-1B:sa-393200. From left to right, the number of tokens representing the images are 490, 154, 18, and 6.
+
+<img src="../../assets/auroracap/tome_vis.png" align="center">
 
 ## Quick Start
 
