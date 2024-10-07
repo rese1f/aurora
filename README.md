@@ -61,7 +61,7 @@ python inference.py \
     --prompt "Describe the video in detail." \
     --visual_input assets/auroracap/test.mp4 \
     --num_frm 8 \
-    --token_kept_ratio 0.2 \
+    --token_kept_ratio 0.8 \
     --temperature 0.0 \
     --top_p 1.0 \
     --num_beams 1 \
@@ -94,6 +94,12 @@ A: While Xtuner supports saving checkpoints in multiple formats, it currently on
 ## Citation
 
 ```bibtex
+@article{chai2024auroracap,
+  title={AuroraCap: Efficient, Performant Video Detailed Captioning and a New Benchmark },
+  author={Wenhao Chai, Enxin Song, Yilun Du, Chenlin Meng, Vashisht Madhavan, Omer Bar-Tal, Jeng-Neng Hwang, Saining Xie, Christopher D. Manning},
+  journal={arXiv preprint arXiv:2410.03051},
+  year={2024}
+}
 ```
 
 ## License

@@ -167,3 +167,11 @@ Q: Why do we provide both Huggingface format and Xtuner format weights for Auror
 A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the Huggingface format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
 
 ## Citation
+```bibtex
+@article{chai2024auroracap,
+  title={AuroraCap: Efficient, Performant Video Detailed Captioning and a New Benchmark },
+  author={Wenhao Chai, Enxin Song, Yilun Du, Chenlin Meng, Vashisht Madhavan, Omer Bar-Tal, Jeng-Neng Hwang, Saining Xie, Christopher D. Manning},
+  journal={arXiv preprint arXiv:2410.03051},
+  year={2024}
+}
+```

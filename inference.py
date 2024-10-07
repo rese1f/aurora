@@ -3,6 +3,7 @@ import argparse
 import torch
 from transformers import AutoModel, AutoModelForCausalLM, AutoTokenizer, CLIPImageProcessor
 from huggingface_hub import snapshot_download
+from PIL import Image  
 
 from src.xtuner.xtuner.utils import DEFAULT_IMAGE_TOKEN, IMAGE_TOKEN_INDEX, PROMPT_TEMPLATE
 from src.xtuner.xtuner.model.aurora import AuroraEncoder, AuroraModel
@@ -27,11 +28,11 @@ def process_text(inputs, tokenizer):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument('--model_path', type=str, help='path to the model', default='wchai/AuroraCap-7B-VID-xtuner')
+    parser.add_argument('--model_path', type=str, help='path to the model', default='wchai/AuroraCap-7B-IMG-xtuner')
     parser.add_argument('--prompt', type=str, help='prompt for the model', default='Describe the video in detail.')
-    parser.add_argument('--visual_input', type=str, help='path to the video or image file', default='assets/auroracap/test.mp4')
+    parser.add_argument('--visual_input', type=str, help='path to the video or image file', default='output.png')
     parser.add_argument('--num_frm', type=int, help='number of frames to sample from the video', default=8)
-    parser.add_argument('--token_kept_ratio', type=float, help='token merge ratio', default=0.2)
+    parser.add_argument('--token_kept_ratio', type=float, help='token merge ratio', default=0.8)
     parser.add_argument('--temperature', type=float, help='temperature', default=0.0)
     parser.add_argument('--top_p', type=float, help='top p', default=1.0)
     parser.add_argument('--num_beams', type=int, help='number of beams', default=1)
@@ -75,8 +76,9 @@ if __name__ == "__main__":
         image_tokens = [DEFAULT_IMAGE_TOKEN] * len(video_frames)
         image_tokens = " ".join(image_tokens)
     elif args.visual_input.endswith('png') or args.visual_input.endswith('jpg'):
-        image_tensor = image_processor(args.visual_input, return_tensors='pt')['pixel_values'].to(dtype=torch.float16)
-        image_tokens = [DEFAULT_IMAGE_TOKEN]
+        image = Image.open(args.visual_input)
+        image_tensor = image_processor(image, return_tensors='pt')['pixel_values'].to(dtype=torch.float16)
+        image_tokens = DEFAULT_IMAGE_TOKEN
         data["pixel_values"] = image_tensor
 
     text_input = image_tokens + "\n" + args.prompt

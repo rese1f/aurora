@@ -10,6 +10,57 @@ pip install -e '.[all]'
 
 ## Dataset preparation
 
+We use over 20 million high-quality image/video-text pairs to train AuroraCap in three stages. We provide the training data in the [AuroraCap-trainset](https://huggingface.co/datasets/wchai/AuroraCap-trainset).
+
+Before you start, ensure you have sufficient storage space to download and process the data.
+
+Follow these steps to get started:
+
+1. **Download the Data Repository**
+
+   Download the data repository. During training, we use the jsonl and image/video folder to store the data. Note that due to Hugging Face policy constraints, the data folder is archived into tar files. We limit each tar file under 40GB. 
+   
+   We seperate the training data into the projection, vision and language split. Here we provide the code guidance to download the dataset of different split.
+
+   ```bash
+    from datasets import load_dataset
+
+    # download the projection split
+    projection_data = load_dataset("wchai/AuroraCap-train", split="projection")
+    
+    # download the vision split
+    vision_data = load_dataset("wchai/AuroraCap-train", split="vision")
+
+    # download the language split
+    language_data = load_dataset("wchai/AuroraCap-train", split="language")
+
+
+    # if you want to load the specific data (we take densefusion in projection split as an example), you can use the following code:
+    projection_densefusion_data = load_dataset(
+        "wchai/AuroraCap-train",
+        split="projection",
+        data_files={
+            "densefusion": "projection/densefusion/*"
+        }
+    )
+   ```
+2. **Merge Tar Files**
+
+   To explore the Cambrian-10M dataset, first merge the different parts of `allava` and `data_engine` together with ([merge_tars.py](https://huggingface.co/datasets/wchai/AuroraCap-trainset/blob/main/merge_tars.py)):
+
+   ```bash
+   python merge_tars.py
+   ```
+3. **Extract Tar Files**
+
+   Then, extract all the tar files into the current directory with ([extract.py](https://huggingface.co/datasets/wchai/AuroraCap-trainset/blob/main/extract.py)):
+
+    ```bash
+   python extract.py
+   ```
+
+
+## Dataset preprocess
 Dataset prepare guides for original llava data can be found on [dataset_prepare.md](../../src/xtuner/docs/en/user_guides/dataset_prepare.md#dataset-prepare##others###llava_dataset). For the additional data from the other sources, we recommand convert into llava dataset format.
 
 We recommand conduct pre-tokenization for all the training data for fast training launch. 
