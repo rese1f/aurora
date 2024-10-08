@@ -14,6 +14,7 @@ A more efficient multimodal large language model series.
 
 ## News
 
+- [2024/10/07] Release technical report at [arXiv](https://arxiv.org/abs/2410.03051).
 - [2024/10/01] Release AuroraCap model and VDC benchmark, as well as the training and evaluation code.
 
 ## Future Updates
