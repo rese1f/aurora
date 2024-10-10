@@ -23,8 +23,8 @@ from huggingface_hub import snapshot_download
 
 from lmms_eval.utils import stop_sequences_criteria
 from lmms_eval.models.model_utils.load_video import read_video_pyav
-from lmms_eval.models.xtuner.model.aurora import AuroraModel, AuroraEncoder, AuroraSigEncoder
-from lmms_eval.models.xtuner.utils import PROMPT_TEMPLATE
+from lmms_eval.models.aurora_xtuner.model.aurora import AuroraModel, AuroraEncoder, AuroraSigEncoder
+from lmms_eval.models.aurora_xtuner.utils import PROMPT_TEMPLATE
 
 import warnings
 
