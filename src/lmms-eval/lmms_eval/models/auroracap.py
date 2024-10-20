@@ -405,6 +405,10 @@ class AuroraCap(lmms):
                             elif self.video_decode_backend == "pyav":
                                 video = read_video_pyav(visuals[0], num_frm=self.max_frames_num)
                             image_tensor = self.process_images(video, self._image_processor, self._config).cuda() # [32, 3, 378, 378]
+                        elif visuals[0].endswith('mkv'):
+                            assert self.video_decode_backend == "pyav", "we only tested this case, decord may not work"
+                            video = read_video_pyav(visuals[0], num_frm=self.max_frames_num)
+                            image_tensor = self.process_images(video, self._image_processor, self._config).cuda()
   
                 if type(image_tensor) is list:
                     image_tensor = [_image.to(dtype=torch.float16, device=self.device) for _image in image_tensor]
@@ -488,7 +492,7 @@ class AuroraCap(lmms):
                     if isinstance(visuals[0], Image.Image):
                         data["pixel_values"] = image_tensor
                     else:
-                        if visuals[0].endswith('mp4'):
+                        if visuals[0].endswith('mp4') or visuals[0].endswith('mkv'):
                             data["pixel_values"] = image_tensor.unsqueeze(0)
                         
                 data["input_ids"] = input_ids
