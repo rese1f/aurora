@@ -434,7 +434,7 @@ class AuroraCap(lmms):
                         if isinstance(visuals[0], Image.Image):
                             image_tokens = [DEFAULT_IMAGE_TOKEN] * len(visual) if isinstance(visual, list) else [DEFAULT_IMAGE_TOKEN]
                         else:
-                            if visual.endswith('mp4'):
+                            if visual.endswith('mp4') or visual.endswith('mkv'):
                                 image_tokens = [DEFAULT_IMAGE_TOKEN] * len(video)
 
                     image_tokens = " ".join(image_tokens)
