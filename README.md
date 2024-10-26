@@ -14,13 +14,14 @@ A more efficient multimodal large language model series.
 
 ## News
 
+- [2024/10/26] VDC benchmark and AuroraCap baseline are supported in [EvolvingLMMs-Lab/lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval).
 - [2024/10/07] Release technical report at [arXiv](https://arxiv.org/abs/2410.03051).
 - [2024/10/01] Release AuroraCap model and VDC benchmark, as well as the training and evaluation code.
 
 ## Future Updates
 
+- [x] PR to [EvolvingLMMs-Lab/lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) with model and benchmark for fast and easy evaluation.
 - [ ] PR to [HuggingFace transformers](https://github.com/huggingface/transformers), but you can also use our [dev branch](https://github.com/rese1f/transformers/tree/aurora) for now.
-- [ ] PR to [EvolvingLMMs-Lab/lmms-eval](https://github.com/EvolvingLMMs-Lab/lmms-eval) with model and benchmark.
 - [ ] Support [SGLang](https://github.com/sgl-project/sglang) deployment.
 - [ ] Support training with [Xtuner-lite](https://github.com/hhaAndroid/xtuner) for faster training and easier configuration.
 
