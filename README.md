@@ -39,7 +39,7 @@ conda create -n aurora python=3.10
 conda activate aurora
 ```
 
-Install PyTorch following [instruction](https://pytorch.org/get-started/locally/).
+Install PyTorch following [instruction](https://pytorch.org/get-started/locally/). Currently PyTorch 2.5 is not supported.
 ```
 pip install torch torchvision
 ```
