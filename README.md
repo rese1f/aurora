@@ -2,7 +2,7 @@
 A more efficient multimodal large language model series.
 
 <table><tr><td>
-    <strong>AuroraCap</strong>: Efficient, Performant Video Detailed Captioning and a New Benchmark, arXiv, 2024.
+    <strong>AuroraCap</strong>: Efficient, Performant Video Detailed Captioning and a New Benchmark, ICLR, 2025.
 </td></tr>
 </table>
 
