@@ -161,7 +161,7 @@ def detokenize_generations(tokens_gpu_tensor, lengths_gpu_tensor, return_segment
 
 
 def tokenize_prompts(prompts=None, tokens_to_generate=None, add_BOS=None, rank=0, tokenizer=None, ignore_dist=False, **kwargs):
-    """Tokenize prompts and make them avaiable on all ranks."""
+    """Tokenize prompts and make them available on all ranks."""
 
     # On all ranks set to None so we can pass them to functions
     prompts_tokens_cuda_long_tensor = None
