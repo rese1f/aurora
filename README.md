@@ -97,6 +97,10 @@ Q: Why do we provide both Huggingface format and Xtuner format weights for Auror
 
 A: While Xtuner supports saving checkpoints in multiple formats, it currently only allows continued training with the Xtuner format. Therefore, we currently provide the model in the Xtuner format for both continued training and inference. In the future, we will provide the model in the Huggingface format for both training and inference, enabling quicker SGLang deployment and integration with the transformers.
 
+Q: In the _default_template_yaml of VDC in lmms-eval, why is gpt_eval_model_name set to gpt-4o-mini instead of Llama-3.1-8B?
+
+A: The lmms-eval framework requires the gpt_eval_model_name field to be specified, but it only supports API models in that field. Since we couldn’t modify the main function, we used gpt-4o-mini as a placeholder. However, the actual evaluation is still conducted using Llama-3.1-8B, which is consistent with both the paper and the implementation.
+
 ## Citation
 
 ```bibtex
