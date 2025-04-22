@@ -203,7 +203,6 @@ def main():
 
     with open(raw_file, 'r') as gener_file:
         gener_data = json.load(gener_file)
-    data_list = gener_data['logs'][:50]
 
     acc_list = []
     score_list = []
