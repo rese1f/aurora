@@ -6,14 +6,8 @@ import random
 import ast
 import argparse
 from tqdm import tqdm
-import openai
-import torch
-from bert_score import score as bt_score
 from sglang import function, system, user, assistant, gen, set_default_backend, RuntimeEndpoint
-from pycocoevalcap.eval import COCOEvalCap, Bleu, Meteor, Rouge, Cider
-from pycocoevalcap.spice.spice import Spice
-from pycocoevalcap.tokenizer.ptbtokenizer import PTBTokenizer
-from pycocotools.coco import COCO
+
 
 camera_caption_prompts = [
     "Summary of the view shot, camera movement and changes in shooting angles in the sequence of video frames.",
@@ -203,23 +197,18 @@ def main():
 
     with open(raw_file, 'r') as gener_file:
         gener_data = json.load(gener_file)
+    data_list = gener_data['logs'][:50]
 
-    acc_list = []
-    score_list = []
-    bert_list = []
     result_list = []
     tp_scores = []
     tp_accs = []
     pred_dict = {}
     answer_dict = {}
 
-    tp_result_list = []
 
     for idx, meta_data in tqdm(enumerate(data_list)):
         video_id = meta_data['doc']['video_id']
         # Change here
-        # TODO: Consider making the prompt list selection an argument
-        question = random.choice(main_object_caption_prompts)
         pred = meta_data['resps'][0][0]
         answer = captions_dict[video_id]
         pred_dict.update({str(idx):[pred]})
@@ -252,7 +241,6 @@ def main():
 
                     qa_list.append(temp_dict)
                 # step 3: match the generated answers with the ground truth answers
-                correct_count = 0
                 for qa in qa_list:
                     state = gener_pred_score.run(
                         qa=qa,
