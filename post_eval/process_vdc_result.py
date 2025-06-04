@@ -206,7 +206,7 @@ def main():
     answer_dict = {}
 
 
-    for idx, meta_data in tqdm(enumerate(data_list)):
+    for idx, meta_data in tqdm(enumerate(gener_data)):
         video_id = meta_data['doc']['video_id']
         # Change here
         pred = meta_data['resps'][0][0]
