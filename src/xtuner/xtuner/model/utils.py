@@ -222,7 +222,6 @@ def prepare_inputs_labels_for_multimodal(
                 try:
                     cur_pixel_values = pixel_values[batch_idx][i]
                 except:
-                    import pdb;pdb.set_trace()
                     continue
                 cur_new_inputs_embeds.append(cur_pixel_values)
                 cur_new_labels.append(
